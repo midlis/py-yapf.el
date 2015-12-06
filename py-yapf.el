@@ -34,8 +34,14 @@ Note that `--in-place' is used by default."
 
 
 (defun py-yapf--call-executable (errbuf file)
-  (zerop (apply 'call-process "yapf" nil errbuf nil
-                (append py-yapf-options `("--in-place", file)))))
+  (let ((yapf-return-code (apply 'call-process "yapf" nil errbuf nil
+                                 (append py-yapf-options `("--in-place", file)))))
+    (cond
+     ((not (boundp 'yapf-return-code)) nil)
+     ((eq yapf-return-code 2) t) ; changed
+     ((eq yapf-return-code 0) t) ; no changes
+     (t nil))
+    ))
 
 
 (defun py-yapf--call ()
